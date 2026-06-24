@@ -1,6 +1,6 @@
 use bytes::Bytes;
 
-/// Protocolo binário do SWCache (TCP)
+/// Protocolo binário do WireCache (TCP)
 ///
 /// Frame de request:
 ///   [1 byte opcode] [4 bytes key_len] [4 bytes val_len] [4 bytes ttl_secs] [key_len bytes key] [val_len bytes value]

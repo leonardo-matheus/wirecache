@@ -1,11 +1,11 @@
 """
-SWCache Python Client
-Protocolo binário TCP do SWCache.
+WireCache Python Client
+Protocolo binário TCP do WireCache.
 
 Frame request:  [1B op][4B key_len][4B val_len][4B ttl][key][value]
 Frame response: [1B status][4B payload_len][payload]
 
-Instale apenas com a stdlib — sem dependências externas.
+Sem dependências externas — apenas stdlib.
 """
 
 import socket
@@ -24,14 +24,12 @@ STATUS_NOT_FOUND = 0x01
 STATUS_ERROR     = 0x02
 STATUS_PONG      = 0x03
 
-HEADER = struct.Struct(">BII I")  # op, key_len, val_len, ttl
 
-
-class SWCacheError(Exception):
+class WireCacheError(Exception):
     pass
 
 
-class SWCacheClient:
+class WireCacheClient:
     def __init__(self, host: str = "127.0.0.1", port: int = 6380, timeout: float = 5.0):
         self._sock = socket.create_connection((host, port), timeout=timeout)
         self._sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
@@ -50,7 +48,7 @@ class SWCacheClient:
         self._send(OP_SET, k, v, ttl)
         status, payload = self._recv()
         if status == STATUS_ERROR:
-            raise SWCacheError(payload.decode())
+            raise WireCacheError(payload.decode())
         return status == STATUS_OK
 
     def get(self, key: str | bytes) -> Optional[bytes]:
@@ -59,7 +57,7 @@ class SWCacheClient:
         if status == STATUS_NOT_FOUND:
             return None
         if status == STATUS_ERROR:
-            raise SWCacheError(payload.decode())
+            raise WireCacheError(payload.decode())
         return payload
 
     def delete(self, key: str | bytes) -> bool:
@@ -76,7 +74,7 @@ class SWCacheClient:
         self._send(OP_STATS, b"", b"", 0)
         status, payload = self._recv()
         if status != STATUS_OK:
-            raise SWCacheError("Falha ao obter stats")
+            raise WireCacheError("Falha ao obter stats")
         import json
         return json.loads(payload.decode())
 
@@ -113,7 +111,7 @@ class SWCacheClient:
         while len(buf) < n:
             chunk = self._sock.recv(n - len(buf))
             if not chunk:
-                raise SWCacheError("Conexão encerrada pelo servidor")
+                raise WireCacheError("Conexão encerrada pelo servidor")
             buf += chunk
         return buf
 
@@ -122,7 +120,7 @@ class SWCacheClient:
 # Exemplo de uso rápido
 # ------------------------------------------------------------------ #
 if __name__ == "__main__":
-    with SWCacheClient() as c:
+    with WireCacheClient() as c:
         print("PING:", c.ping())
         c.set("chave", "valor", ttl=60)
         print("GET:", c.get("chave"))

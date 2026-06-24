@@ -8,7 +8,7 @@ use super::handler::handle_connection;
 
 pub async fn run(addr: SocketAddr, store: CacheStore) -> std::io::Result<()> {
     let listener = TcpListener::bind(addr).await?;
-    info!("SWCache escutando em {}", addr);
+    info!("WireCache escutando em {}", addr);
 
     loop {
         let (stream, _) = listener.accept().await?;

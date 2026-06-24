@@ -81,7 +81,7 @@ mod tests {
 
     #[test]
     fn test_load_config_success() {
-        let path = "swconfig_test_success.toml";
+        let path = "wirecache_test_success.toml";
         let mut f = File::create(path).unwrap();
         f.write_all(b"single_thread_mode = true\ndebug = false\nport = 6380\n").unwrap();
 
@@ -95,7 +95,7 @@ mod tests {
 
     #[test]
     fn test_load_config_optional_fields_missing() {
-        let path = "swconfig_test_missing_fields.toml";
+        let path = "wirecache_test_missing_fields.toml";
         File::create(path).unwrap();
 
         let cfg = load_config(path).unwrap();
@@ -107,13 +107,13 @@ mod tests {
 
     #[test]
     fn test_load_config_file_not_found() {
-        let err = load_config("swconfig_missing.toml").unwrap_err();
+        let err = load_config("wirecache_missing.toml").unwrap_err();
         assert!(err.contains("não encontrado"));
     }
 
     #[test]
     fn test_load_config_invalid_toml() {
-        let path = "swconfig_test_invalid.toml";
+        let path = "wirecache_test_invalid.toml";
         let mut f = File::create(path).unwrap();
         f.write_all(b"single_thread_mode = \"not_a_bool\"\n").unwrap();
 

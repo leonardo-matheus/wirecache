@@ -14,7 +14,7 @@ mod utils;
 async fn main() {
     startup();
 
-    let cfg = load_config_or_default("swconfig.toml");
+    let cfg = load_config_or_default("wirecache.toml");
 
     let level = if cfg.debug.unwrap_or(false) { "debug" } else { "info" };
     tracing_subscriber::fmt()

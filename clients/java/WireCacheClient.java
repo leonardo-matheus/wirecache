@@ -3,15 +3,14 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 /**
- * SWCache Java Client — sem dependências externas, compatível com Java 8+.
+ * WireCache Java Client — sem dependências externas, compatível com Java 8+.
  *
  * Frame request:  [1B op][4B key_len][4B val_len][4B ttl][key][value]
  * Frame response: [1B status][4B payload_len][payload]
  */
-public class SWCacheClient implements AutoCloseable {
+public class WireCacheClient implements AutoCloseable {
 
     private static final int OP_PING  = 0x01;
     private static final int OP_SET   = 0x02;
@@ -29,7 +28,7 @@ public class SWCacheClient implements AutoCloseable {
     private final DataOutputStream out;
     private final DataInputStream  in;
 
-    public SWCacheClient(String host, int port) throws IOException {
+    public WireCacheClient(String host, int port) throws IOException {
         this.socket = new Socket();
         this.socket.connect(new InetSocketAddress(host, port), 5000);
         this.socket.setTcpNoDelay(true);
@@ -37,7 +36,7 @@ public class SWCacheClient implements AutoCloseable {
         this.in  = new DataInputStream(new BufferedInputStream(socket.getInputStream(), 65536));
     }
 
-    public SWCacheClient() throws IOException {
+    public WireCacheClient() throws IOException {
         this("127.0.0.1", 6380);
     }
 
@@ -137,7 +136,7 @@ public class SWCacheClient implements AutoCloseable {
     // Exemplo de uso rápido
     // ------------------------------------------------------------------ //
     public static void main(String[] args) throws Exception {
-        try (SWCacheClient c = new SWCacheClient()) {
+        try (WireCacheClient c = new WireCacheClient()) {
             System.out.println("PING: " + c.ping());
             c.set("chave", "valor", 60);
             System.out.println("GET: " + c.getString("chave"));

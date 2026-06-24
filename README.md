@@ -88,9 +88,9 @@ Minimal implementations included — no external dependencies in any of them.
 ### Python
 
 ```python
-from clients.python.swcache import SWCacheClient
+from clients.python.wirecache import WireCacheClient
 
-with SWCacheClient("127.0.0.1", 6380) as c:
+with WireCacheClient("127.0.0.1", 6380) as c:
     c.ping()                      # True
     c.set("key", "value", ttl=60)
     c.get("key")                  # b"value"
@@ -101,9 +101,9 @@ with SWCacheClient("127.0.0.1", 6380) as c:
 ### JavaScript (Node.js)
 
 ```js
-const { SWCacheClient } = require("./clients/javascript/swcache");
+const { WireCacheClient } = require("./clients/javascript/wirecache");
 
-const c = new SWCacheClient();
+const c = new WireCacheClient();
 await c.connect();
 await c.set("key", "value", 60);
 const val = await c.get("key");   // Buffer
@@ -113,7 +113,7 @@ await c.disconnect();
 ### Java
 
 ```java
-try (SWCacheClient c = new SWCacheClient("127.0.0.1", 6380)) {
+try (WireCacheClient c = new WireCacheClient("127.0.0.1", 6380)) {
     c.ping();
     c.set("key", "value", 60);
     String val = c.getString("key");

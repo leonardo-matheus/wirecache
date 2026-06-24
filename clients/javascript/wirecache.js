@@ -1,5 +1,5 @@
 /**
- * SWCache JavaScript/Node.js Client
+ * WireCache JavaScript/Node.js Client
  * Protocolo binário TCP — sem dependências externas.
  *
  * Frame request:  [1B op][4B key_len][4B val_len][4B ttl][key][value]
@@ -11,7 +11,7 @@ const net = require("net");
 const OP = { PING: 0x01, SET: 0x02, GET: 0x03, DEL: 0x04, FLUSH: 0x05, STATS: 0x06 };
 const STATUS = { OK: 0x00, NOT_FOUND: 0x01, ERROR: 0x02, PONG: 0x03 };
 
-class SWCacheClient {
+class WireCacheClient {
   constructor(host = "127.0.0.1", port = 6380) {
     this._host = host;
     this._port = port;
@@ -116,12 +116,12 @@ class SWCacheClient {
   }
 }
 
-module.exports = { SWCacheClient };
+module.exports = { WireCacheClient };
 
-// Exemplo de uso rápido (node swcache.js)
+// Exemplo de uso rápido (node wirecache.js)
 if (require.main === module) {
   (async () => {
-    const client = new SWCacheClient();
+    const client = new WireCacheClient();
     await client.connect();
     console.log("PING:", await client.ping());
     await client.set("chave", "valor", 60);
