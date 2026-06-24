@@ -1,4 +1,8 @@
 /target
 wirecache.toml
 Cargo.lock
+.idea/
+__pycache__/
+*.pyc
+*.pyo
 
