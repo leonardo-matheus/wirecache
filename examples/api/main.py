@@ -10,7 +10,7 @@ Inicie o WireCache antes de rodar esta API:
 
 Depois rode a API:
     pip install -r requirements.txt
-    uvicorn main:app --reload
+    python main.py
 """
 
 import asyncio
@@ -450,3 +450,8 @@ async def bench_get(
         "ops_per_second": round(n / (total_ms / 1000)),
         "value_size_bytes": size,
     }
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=False)
