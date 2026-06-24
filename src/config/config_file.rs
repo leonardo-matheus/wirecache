@@ -11,6 +11,7 @@ pub struct AppConfig {
     pub host: Option<String>,
     pub port: Option<u16>,
     pub max_capacity: Option<u64>,
+    pub metrics_interval_secs: Option<u64>,
     pub single_thread_mode: Option<bool>,
     pub debug: Option<bool>,
 }
@@ -26,6 +27,10 @@ impl AppConfig {
 
     pub fn max_capacity(&self) -> u64 {
         self.max_capacity.unwrap_or(DEFAULT_MAX_CAPACITY)
+    }
+
+    pub fn metrics_interval(&self) -> u64 {
+        self.metrics_interval_secs.unwrap_or(5)
     }
 }
 
@@ -54,6 +59,7 @@ pub fn load_config_or_default(path: &str) -> AppConfig {
             host: None,
             port: None,
             max_capacity: None,
+            metrics_interval_secs: None,
             single_thread_mode: None,
             debug: None,
         },
