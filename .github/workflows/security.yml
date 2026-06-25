@@ -1,0 +1,116 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+  schedule:
+    - cron: '0 8 * * 1'
+
+permissions:
+  contents: read
+  security-events: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rust Cache
+        uses: swatinem/rust-cache@v2
+
+      - name: Build
+        run: cargo build --verbose
+
+      - name: Run tests
+        run: cargo test --verbose
+
+  trivy-scan:
+    name: Trivy — Dependencies
+    runs-on: ubuntu-latest
+    needs: build-test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '1'
+          format: 'table'
+
+      - name: Run Trivy (SARIF)
+        uses: aquasecurity/trivy-action@master
+        if: always()
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          severity: 'HIGH,CRITICAL'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  sast:
+    name: SAST — Code Analysis
+    runs-on: ubuntu-latest
+    needs: build-test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install OpenGrep
+        run: |
+          curl -sSL -o opengrep https://github.com/opengrep/opengrep/releases/download/v1.23.0/opengrep_manylinux_x86
+          chmod +x opengrep
+          sudo mv opengrep /usr/local/bin/opengrep
+
+      - name: Run OpenGrep SAST
+        run: |
+          opengrep scan \
+            --config rules/sast/rust \
+            --json \
+            --output sast-results.json \
+            . || true
+
+      - name: Parse SAST results
+        run: |
+          if [ -f sast-results.json ]; then
+            ERRORS=$(python3 -c "
+          import json
+          with open('sast-results.json') as f:
+              data = json.load(f)
+          results = data.get('results', [])
+          errors = [r for r in results if r.get('extra', {}).get('severity') == 'ERROR']
+          warnings = [r for r in results if r.get('extra', {}).get('severity') == 'WARNING']
+          print(f'ERRORS: {len(errors)}')
+          print(f'WARNINGS: {len(warnings)}')
+          for r in errors:
+              print(f'  ERROR: {r[\"check_id\"]} - {r[\"path\"]}:{r[\"start\"][\"line\"]}')
+          for r in warnings:
+              print(f'  WARNING: {r[\"check_id\"]} - {r[\"path\"]}:{r[\"start\"][\"line\"]}')
+          ")
+            echo "$ERRORS"
+            if echo "$ERRORS" | grep -q "^ERRORS: [1-9]"; then
+              echo "::error::SAST found security issues"
+              exit 1
+            fi
+          fi
+
+      - name: Upload SAST results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sast-results
+          path: sast-results.json

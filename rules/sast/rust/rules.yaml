@@ -1,0 +1,168 @@
+rules:
+  - id: rust-unsafe-block
+    pattern: |
+      unsafe { ... }
+    message: >
+      Unsafe block detected. Ensure memory safety guarantees are maintained.
+      Review for potential undefined behavior.
+    languages: [rust]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe:
+        - id: "CWE-693"
+          name: "Protection Mechanism Failure"
+
+  - id: rust-unwrap-production
+    pattern: |
+      $VAR.unwrap()
+    message: >
+      unwrap() in production code may cause panics.
+      Use expect() with descriptive message or proper error handling.
+    languages: [rust]
+    severity: WARNING
+    metadata:
+      category: reliability
+      cwe:
+        - id: "CWE-754"
+          name: "Improper Check for Exceptional Conditions"
+
+  - id: rust-command-injection
+    pattern: |
+      Command::new("...").arg($VAR).output()
+    message: >
+      Command Injection: user input in Command arguments.
+      Validate and sanitize input before use.
+    languages: [rust]
+    severity: ERROR
+    metadata:
+      category: security
+      cwe:
+        - id: "CWE-78"
+          name: "OS Command Injection"
+
+  - id: rust-path-traversal
+    pattern: |
+      File::open("..." + $VAR)
+    message: >
+      Path Traversal: user input in file path.
+      Sanitize path to prevent directory traversal.
+    languages: [rust]
+    severity: ERROR
+    metadata:
+      category: security
+      cwe:
+        - id: "CWE-22"
+          name: "Path Traversal"
+
+  - id: rust-hardcoded-secret
+    pattern: |
+      let $VAR = "..."
+    message: >
+      Potential hardcoded secret detected.
+      Use environment variables or secrets management.
+    languages: [rust]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe:
+        - id: "CWE-798"
+          name: "Use of Hard-coded Credentials"
+
+  - id: rust-tls-insecure
+    pattern: |
+      danger_accept_invalid_certs(true)
+    message: >
+      Insecure TLS: certificate verification disabled.
+      Enable certificate verification in production.
+    languages: [rust]
+    severity: ERROR
+    metadata:
+      category: security
+      cwe:
+        - id: "CWE-295"
+          name: "Improper Certificate Validation"
+
+  - id: rust-crypto-md5
+    pattern: |
+      md5::Md5
+    message: >
+      Weak cryptography: MD5 is insecure.
+      Use SHA-256 or stronger for security purposes.
+    languages: [rust]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe:
+        - id: "CWE-328"
+          name: "Use of Weak Hash"
+
+  - id: rust-crypto-sha1
+    pattern: |
+      sha1::Sha1
+    message: >
+      Weak cryptography: SHA1 is deprecated.
+      Use SHA-256 or stronger for security purposes.
+    languages: [rust]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe:
+        - id: "CWE-328"
+          name: "Use of Weak Hash"
+
+  - id: rust-unsafe-transmute
+    pattern: |
+      std::mem::transmute(...)
+    message: >
+      Unsafe transmute: may cause undefined behavior.
+      Use safe conversions or validate input thoroughly.
+    languages: [rust]
+    severity: ERROR
+    metadata:
+      category: security
+      cwe:
+        - id: "CWE-704"
+          name: "Incorrect Type Conversion"
+
+  - id: rust-deserialize-unsafe
+    pattern: |
+      serde_json::from_str(...)
+    message: >
+      Deserialization from untrusted string.
+      Validate input schema before deserializing.
+    languages: [rust]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe:
+        - id: "CWE-502"
+          name: "Deserialization of Untrusted Data"
+
+  - id: rust-unbounded-channel
+    pattern: |
+      unbounded()
+    message: >
+      Unbounded channel may cause memory exhaustion.
+      Consider using bounded channels for backpressure.
+    languages: [rust]
+    severity: WARNING
+    metadata:
+      category: reliability
+      cwe:
+        - id: "CWE-770"
+          name: "Allocation of Resources Without Limits"
+
+  - id: rust-panic-macro
+    pattern: |
+      panic!(...)
+    message: >
+      panic!() will crash the thread.
+      Use proper error handling with Result type.
+    languages: [rust]
+    severity: WARNING
+    metadata:
+      category: reliability
+      cwe:
+        - id: "CWE-754"
+          name: "Improper Check for Exceptional Conditions"
